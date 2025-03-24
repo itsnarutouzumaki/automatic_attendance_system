@@ -1,0 +1,16 @@
+*.dat filter=lfs diff=lfs merge=lfs -text
+# Ignore all CSV files
+*.csv
+
+# Ignore all Excel files (XLS and XLSX)
+*.xls
+*.xlsx
+
+# Ignore specific CSV or Excel files (optional)
+data/features_all.csv
+data/data.xlsx
+
+*.db
+__pycache__/
+templates/
+app.py
