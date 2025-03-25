@@ -14,3 +14,4 @@ data/data.xlsx
 __pycache__/
 templates/
 app.py
+.env
