@@ -1,4 +1,6 @@
+# Git LFS tracked files
 *.dat filter=lfs diff=lfs merge=lfs -text
+
 # Ignore all CSV files
 *.csv
 
@@ -6,12 +8,19 @@
 *.xls
 *.xlsx
 
-# Ignore specific CSV or Excel files (optional)
-data/features_all.csv
-data/data.xlsx
-
+# Ignore database files
 *.db
+
+# Python specific ignores
 __pycache__/
-templates/
+
+# Application files
 app.py
 .env
+
+# Directory ignores
+templates/
+
+# Specific file ignores
+data/features_all.csv
+data/data.xlsx
