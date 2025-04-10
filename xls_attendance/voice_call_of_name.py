@@ -1,7 +1,7 @@
 import pyttsx3
 def call_name(registration_numbers):
     engine = pyttsx3.init()
-
+    registration_numbers = sorted(registration_numbers, key=lambda x: x.lower())
     engine.say("Ladies and GentleMen, Attendance has Been marked for")
     engine.runAndWait()
 

@@ -20,6 +20,7 @@ app.py
 
 # Directory ignores
 templates/
+attendance_record/
 data/data_faces_from_camera
 
 # Specific file ignores

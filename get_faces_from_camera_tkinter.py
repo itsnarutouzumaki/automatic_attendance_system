@@ -19,26 +19,28 @@ class Face_Register:
         self.existing_faces_cnt = 0
         self.ss_cnt = 0
 
-        # Initialize GUI components
-        self.win = tk.Tk()
+        self.win = tk.Toplevel()
         self.win.title("Face Register")
-        self.win.geometry("1000x500")
+        self.win.attributes('-fullscreen', True)
+        self.win.configure(bg='black')
 
-        self.frame_left_camera = tk.Frame(self.win)
-        self.label = tk.Label(self.win)
+        self.frame_left_camera = tk.Frame(self.win, bg="black")
+        self.label = tk.Label(self.win, bg="black")
         self.label.pack(side=tk.LEFT)
         self.frame_left_camera.pack()
 
-        self.frame_right_info = tk.Frame(self.win)
-        self.label_cnt_face_in_database = tk.Label(self.frame_right_info, text=str(self.existing_faces_cnt))
-        self.label_fps_info = tk.Label(self.frame_right_info, text="")
-        self.label_warning = tk.Label(self.frame_right_info)
-        self.label_face_cnt = tk.Label(self.frame_right_info, text="Faces in current frame: ")
-        self.log_all = tk.Label(self.frame_right_info)
+        self.frame_right_info = tk.Frame(self.win, bg="black")
+        self.label_cnt_face_in_database = tk.Label(self.frame_right_info, text=str(self.existing_faces_cnt), fg="white", bg="black", font=('Helvetica', 16, 'bold'))
+        self.label_fps_info = tk.Label(self.frame_right_info, text="", fg="white", bg="black", font=('Helvetica', 16, 'bold'))
+        self.label_warning = tk.Label(self.frame_right_info, fg="red", bg="black", font=('Helvetica', 16, 'bold'))
+        self.label_face_cnt = tk.Label(self.frame_right_info, text="Faces in current frame: ", fg="white", bg="black", font=('Helvetica', 16, 'bold'))
+        self.label_img_count = tk.Label(self.frame_right_info, text="Images captured: 0", fg="white", bg="black", font=('Helvetica', 16, 'bold'))
+        self.label_msg1 = tk.Label(self.frame_right_info, text="Press 'Q' to quit", fg="white", bg="black", font=('Helvetica', 16, 'bold'))
+        self.label_msg2 = tk.Label(self.frame_right_info, text="Take 5 to 10 pictures for better accuracy", fg="white", bg="black", font=('Helvetica', 16, 'bold'))
+        self.log_all = tk.Label(self.frame_right_info, fg="white", bg="black", font=('Helvetica', 16))
 
-        self.font_title = tkFont.Font(family='Helvetica', size=20, weight='bold')
-        self.font_step_title = tkFont.Font(family='Helvetica', size=15, weight='bold')
-        self.font_warning = tkFont.Font(family='Helvetica', size=15, weight='bold')
+        self.font_title = tkFont.Font(family='Helvetica', size=24, weight='bold')
+        self.font_step_title = tkFont.Font(family='Helvetica', size=18, weight='bold')
 
         self.path_photos_from_camera = "data/data_faces_from_camera/"
         self.current_face_dir = ""
@@ -64,12 +66,10 @@ class Face_Register:
 
         self.cap = cv2.VideoCapture(0)
 
-        # Bind keys for saving face and quitting
         self.win.bind('c', self.save_current_face)
         self.win.bind('q', self.quit)
 
     def GUI_clear_data(self):
-        # Clear all saved face data and reset counters
         folders_rd = os.listdir(self.path_photos_from_camera)
         for i in range(len(folders_rd)):
             shutil.rmtree(self.path_photos_from_camera + folders_rd[i])
@@ -77,49 +77,44 @@ class Face_Register:
             os.remove("data/features_all.csv")
         self.label_cnt_face_in_database['text'] = "0"
         self.existing_faces_cnt = 0
-        self.log_all["text"] = "Face images and `features_all.csv` removed!"
+        self.log_all["text"] = "Face images and features_all.csv removed!"
+        self.label_img_count["text"] = "Images captured: 0"
 
     def GUI_info(self):
-        # Setup GUI layout and labels
-        tk.Label(self.frame_right_info, text="Face register", font=self.font_title).grid(row=0, column=0, columnspan=3, sticky=tk.W, padx=2, pady=20)
-        tk.Label(self.frame_right_info, text="FPS: ").grid(row=1, column=0, sticky=tk.W, padx=5, pady=2)
+        tk.Label(self.frame_right_info, text="Face Register", font=self.font_title, fg="white", bg="black").grid(row=0, column=0, columnspan=3, sticky=tk.W, padx=2, pady=20)
+        tk.Label(self.frame_right_info, text="FPS: ", fg="white", bg="black", font=self.font_step_title).grid(row=1, column=0, sticky=tk.W, padx=5, pady=2)
         self.label_fps_info.grid(row=1, column=1, sticky=tk.W, padx=5, pady=2)
-        tk.Label(self.frame_right_info, text="Faces in database: ").grid(row=2, column=0, sticky=tk.W, padx=5, pady=2)
+        tk.Label(self.frame_right_info, text="Faces in database: ", fg="white", bg="black", font=self.font_step_title).grid(row=2, column=0, sticky=tk.W, padx=5, pady=2)
         self.label_cnt_face_in_database.grid(row=2, column=1, sticky=tk.W, padx=5, pady=2)
-        tk.Label(self.frame_right_info, text="Faces in current frame: ").grid(row=3, column=0, columnspan=2, sticky=tk.W, padx=5, pady=2)
+        tk.Label(self.frame_right_info, text="Faces in current frame: ", fg="white", bg="black", font=self.font_step_title).grid(row=3, column=0, columnspan=2, sticky=tk.W, padx=5, pady=2)
         self.label_face_cnt.grid(row=3, column=2, columnspan=3, sticky=tk.W, padx=5, pady=2)
         self.label_warning.grid(row=4, column=0, columnspan=3, sticky=tk.W, padx=5, pady=2)
 
-        tk.Label(self.frame_right_info, font=self.font_step_title, text="Step 1: Clear face photos").grid(row=5, column=0, columnspan=2, sticky=tk.W, padx=5, pady=20)
-        tk.Button(self.frame_right_info, text='Clear', command=self.GUI_clear_data).grid(row=6, column=0, columnspan=3, sticky=tk.W, padx=5, pady=2)
+        tk.Label(self.frame_right_info, font=self.font_step_title, text="Step 1: Clear face photos", fg="white", bg="black").grid(row=5, column=0, columnspan=2, sticky=tk.W, padx=5, pady=20)
+        tk.Button(self.frame_right_info, text='Clear', command=self.GUI_clear_data, font=self.font_step_title).grid(row=6, column=0, columnspan=3, sticky=tk.W, padx=5, pady=2)
 
-        tk.Label(self.frame_right_info, font=self.font_step_title, text="Step 2: Save face image").grid(row=7, column=0, columnspan=2, sticky=tk.W, padx=5, pady=20)
-        tk.Label(self.frame_right_info, text="Press 'c' to save current face").grid(row=8, column=0, columnspan=3, sticky=tk.W, padx=5, pady=2)
+        tk.Label(self.frame_right_info, font=self.font_step_title, text="Step 2: Save face image", fg="white", bg="black").grid(row=7, column=0, columnspan=2, sticky=tk.W, padx=5, pady=20)
+        tk.Label(self.frame_right_info, text="Press 'C' to save current face", fg="white", bg="black", font=('Helvetica', 14)).grid(row=8, column=0, columnspan=3, sticky=tk.W, padx=5, pady=2)
 
-        self.log_all.grid(row=9, column=0, columnspan=20, sticky=tk.W, padx=5, pady=20)
+        self.log_all.grid(row=9, column=0, columnspan=3, sticky=tk.W, padx=5, pady=20)
+        self.label_img_count.grid(row=10, column=0, columnspan=3, sticky=tk.W, padx=5, pady=5)
+        self.label_msg1.grid(row=11, column=0, columnspan=3, sticky=tk.W, padx=5, pady=5)
+        self.label_msg2.grid(row=12, column=0, columnspan=3, sticky=tk.W, padx=5, pady=5)
         self.frame_right_info.pack()
 
     def pre_work_mkdir(self):
-        # Create directory for saving face images if it doesn't exist
-        if os.path.isdir(self.path_photos_from_camera):
-            pass
-        else:
+        if not os.path.isdir(self.path_photos_from_camera):
             os.mkdir(self.path_photos_from_camera)
 
     def check_existing_faces_cnt(self):
-        # Check and count existing faces in the database
         if os.listdir("data/data_faces_from_camera/"):
             person_list = os.listdir("data/data_faces_from_camera/")
-            person_num_list = []
-            for person in person_list:
-                person_order = person.split('_')[1].split('_')[0]
-                person_num_list.append(int(person_order))
+            person_num_list = [int(person.split('_')[1]) for person in person_list]
             self.existing_faces_cnt = max(person_num_list)
         else:
             self.existing_faces_cnt = 0
 
     def update_fps(self):
-        # Update FPS information
         now = time.time()
         if str(self.start_time).split(".")[0] != str(now).split(".")[0]:
             self.fps_show = self.fps
@@ -130,38 +125,34 @@ class Face_Register:
         self.label_fps_info["text"] = str(self.fps.__round__(2))
 
     def create_face_folder(self):
-        # Create a folder for the current face
         self.existing_faces_cnt += 1
-        self.current_face_dir = self.path_photos_from_camera + "person_" + str(self.existing_faces_cnt) + "_" + self.reg_no
+        self.current_face_dir = self.path_photos_from_camera + f"person_{self.existing_faces_cnt}_{self.reg_no}"
         os.makedirs(self.current_face_dir)
-        self.log_all["text"] = "\"" + self.current_face_dir + "/\" created!"
+        self.log_all["text"] = f"\"{self.current_face_dir}/\" created!"
         logging.info("\n%-40s %s", "Create folders:", self.current_face_dir)
         self.ss_cnt = 0
         self.face_folder_created_flag = True
 
     def save_current_face(self, event=None):
-        # Save the current face image to the folder
         if self.face_folder_created_flag:
-            if self.current_frame_faces_cnt == 1:
-                if not self.out_of_range_flag:
-                    self.ss_cnt += 1
-                    self.face_ROI_image = np.zeros((int(self.face_ROI_height * 2), self.face_ROI_width * 2, 3), np.uint8)
-                    for ii in range(self.face_ROI_height * 2):
-                        for jj in range(self.face_ROI_width * 2):
-                            self.face_ROI_image[ii][jj] = self.current_frame[self.face_ROI_height_start - self.hh + ii][self.face_ROI_width_start - self.ww + jj]
-                    self.face_ROI_image = cv2.cvtColor(self.face_ROI_image, cv2.COLOR_BGR2GRAY)
-                    self.log_all["text"] = "\"" + self.current_face_dir + "/img_face_" + str(self.ss_cnt) + ".jpg\"" + " saved!"
-                    cv2.imwrite(self.current_face_dir + "/img_face_" + str(self.ss_cnt) + ".jpg", self.face_ROI_image)
-                    logging.info("%-40s %s/img_face_%s.jpg", "Save into：", str(self.current_face_dir), str(self.ss_cnt) + ".jpg")
-                else:
-                    self.log_all["text"] = "Please do not out of range!"
+            if self.current_frame_faces_cnt == 1 and not self.out_of_range_flag:
+                self.ss_cnt += 1
+                self.face_ROI_image = np.zeros((int(self.face_ROI_height * 2), self.face_ROI_width * 2, 3), np.uint8)
+                for ii in range(self.face_ROI_height * 2):
+                    for jj in range(self.face_ROI_width * 2):
+                        self.face_ROI_image[ii][jj] = self.current_frame[self.face_ROI_height_start - self.hh + ii][self.face_ROI_width_start - self.ww + jj]
+                self.face_ROI_image = cv2.cvtColor(self.face_ROI_image, cv2.COLOR_BGR2GRAY)
+                path = f"{self.current_face_dir}/img_face_{self.ss_cnt}.jpg"
+                cv2.imwrite(path, self.face_ROI_image)
+                self.label_img_count["text"] = f"Images captured: {self.ss_cnt}"
+                self.log_all["text"] = f"\"{path}\" saved!"
+                logging.info("%-40s %s", "Save into：", path)
             else:
-                self.log_all["text"] = "No face in current frame!"
+                self.log_all["text"] = "No face in current frame or out of range!"
         else:
             self.log_all["text"] = "Please run step 2!"
 
     def get_frame(self):
-        # Capture a frame from the camera
         try:
             if self.cap.isOpened():
                 ret, frame = self.cap.read()
@@ -171,7 +162,6 @@ class Face_Register:
             print("Error: No video input!!!")
 
     def process(self):
-        # Main loop for processing frames and detecting faces
         ret, self.current_frame = self.get_frame()
         faces = detector(self.current_frame, 0)
         if ret:
@@ -188,14 +178,13 @@ class Face_Register:
 
                     if (d.right() + self.ww) > 640 or (d.bottom() + self.hh > 480) or (d.left() - self.ww < 0) or (d.top() - self.hh < 0):
                         self.label_warning["text"] = "OUT OF RANGE"
-                        self.label_warning['fg'] = 'red'
                         self.out_of_range_flag = True
                         color_rectangle = (255, 0, 0)
                     else:
                         self.out_of_range_flag = False
                         self.label_warning["text"] = ""
                         color_rectangle = (255, 255, 255)
-                    self.current_frame = cv2.rectangle(self.current_frame, tuple([d.left() - self.ww, d.top() - self.hh]), tuple([d.right() + self.ww, d.bottom() + self.hh]), color_rectangle, 2)
+                    self.current_frame = cv2.rectangle(self.current_frame, (d.left() - self.ww, d.top() - self.hh), (d.right() + self.ww, d.bottom() + self.hh), color_rectangle, 2)
             self.current_frame_faces_cnt = len(faces)
 
             img_Image = Image.fromarray(self.current_frame)
@@ -206,13 +195,11 @@ class Face_Register:
         self.win.after(20, self.process)
 
     def quit(self, event=None):
-        # Quit the application and release resources
         self.win.quit()
         self.win.destroy()
         self.cap.release()
 
     def run(self):
-        # Run the application
         self.pre_work_mkdir()
         self.check_existing_faces_cnt()
         self.create_face_folder()
@@ -220,13 +207,11 @@ class Face_Register:
         self.process()
         self.win.mainloop()
 
-def registerStudent():
-    # Entry point for registering a student
+def registerStudent(reg_no):
     logging.basicConfig(level=logging.INFO)
-    reg_no = input("Enter registration number: ")
     Face_Register_con = Face_Register(reg_no)
     Face_Register_con.run()
     extract_face()
 
 if __name__ == '__main__':
-    registerStudent()
+    registerStudent("test123")

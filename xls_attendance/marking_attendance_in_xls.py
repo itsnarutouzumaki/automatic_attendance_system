@@ -3,7 +3,7 @@ import openpyxl
 from datetime import datetime
 
 def mark_attendance(course_id, registration_numbers):
-    filename = f"{course_id}.xlsx"
+    filename = f"attendance_record/{course_id}.xlsx"
     
     try:
         workbook = openpyxl.load_workbook(filename)
@@ -61,6 +61,3 @@ def mark_attendance(course_id, registration_numbers):
     except FileNotFoundError:
         print(f"Error: File '{filename}' not found.")
         return []
-
-
-
