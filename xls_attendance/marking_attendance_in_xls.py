@@ -1,6 +1,9 @@
 import openpyxl
 
 from datetime import datetime
+import logging
+logging.getLogger('comtypes').setLevel(logging.WARNING)
+
 
 def mark_attendance(course_id, registration_numbers):
     filename = f"attendance_record/{course_id}.xlsx"

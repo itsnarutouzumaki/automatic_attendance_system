@@ -70,31 +70,35 @@ def process_all_faces(output_csv="data/features_all.csv"):
                     continue
                 existing_data[row[0]] = row[1:]
 
-    with open(output_csv, "a", newline="") as csvfile:
+    for person in person_list:
+        person_folder_path = os.path.join(path_images_from_camera, person)
+        logging.info("Processing folder: %s", person_folder_path)
+        if not os.path.exists(person_folder_path):
+            logging.error("Folder does not exist: %s", person_folder_path)
+            continue
+
+        features_mean_personX = return_features_mean_personX(person_folder_path)
+
+        if len(person.split('_', 2)) == 2:
+            person_name = person
+        else:
+            person_name = person.split('_', 2)[-1]
+
+        if person_name in existing_data:
+            existing_data[person_name] = features_mean_personX
+            logging.info("Updated features for person %s.", person_name)
+        else:
+            existing_data[person_name] = features_mean_personX
+            logging.info("Added new features for person %s.", person_name)
+
+    # Ab puri file overwrite karni hai
+    with open(output_csv, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
-        for person in person_list:
-            person_folder_path = os.path.join(path_images_from_camera, person)
-            logging.info("Processing folder: %s", person_folder_path)
-            if not os.path.exists(person_folder_path):
-                logging.error("Folder does not exist: %s", person_folder_path)
-                continue
+        for person_name, features in existing_data.items():
+            row = [person_name] + list(map(str, features))
+            writer.writerow(row)
 
-            features_mean_personX = return_features_mean_personX(person_folder_path)
-
-            if len(person.split('_', 2)) == 2:
-                person_name = person
-            else:
-                person_name = person.split('_', 2)[-1]
-
-            if person_name in existing_data:
-                existing_data[person_name] = features_mean_personX
-                logging.info("Updated features for person %s.", person_name)
-            else:
-                features_mean_personX = np.insert(features_mean_personX, 0, person_name, axis=0)
-                writer.writerow(features_mean_personX)
-                logging.info("Added new features for person %s.", person_name)
-
-    logging.info("Updated features of faces registered into: %s", output_csv)
+    logging.info("Updated all features of faces registered into: %s", output_csv)
 
 if __name__ == "__main__":
     process_all_faces()
